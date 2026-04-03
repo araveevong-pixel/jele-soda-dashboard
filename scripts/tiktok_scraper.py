@@ -1,23 +1,16 @@
 #!/usr/bin/env python3
 """
-JELE SODA 2026 — TikTok Scraper
+JELE SODA 2026 — TikTok Scraper (yt-dlp)
 Scrape views, likes, shares, comments, saves, followers from TikTok video links.
+Uses yt-dlp for reliable JSON metadata extraction.
 Usage: python3 scripts/tiktok_scraper.py [output_json]
 """
 
 import json
 import sys
-import re
+import subprocess
 import time
 import random
-
-try:
-    import requests
-except ImportError:
-    print("Installing requests...")
-    import subprocess
-    subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'requests', '-q'])
-    import requests
 
 # ============================================================
 #  KOL LINKS — เพิ่มลิงก์ใหม่เมื่อ KOL โพสต์
@@ -78,61 +71,41 @@ KOL_LINKS = {
     'snicker_nts': 'https://vt.tiktok.com/ZSHFyNucR/',
 }
 
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.9,th;q=0.8',
-}
 
-
-def resolve_short_url(short_url, timeout=10):
-    """Resolve vt.tiktok.com short URLs to full URLs."""
+def scrape_tiktok_video(url, timeout=60):
+    """Extract TikTok video metadata using yt-dlp --dump-json."""
     try:
-        resp = requests.head(short_url, headers=HEADERS, allow_redirects=True, timeout=timeout)
-        return resp.url
-    except Exception:
-        return short_url
+        result = subprocess.run(
+            ['yt-dlp', '--dump-json', '--no-download', '--no-warnings', url],
+            capture_output=True, text=True, timeout=timeout
+        )
 
+        if result.returncode != 0:
+            print(f"    yt-dlp error: {result.stderr.strip()[:200]}")
+            return None
 
-def scrape_tiktok_video(url, timeout=15):
-    """Scrape metrics from a TikTok video page."""
-    try:
-        if 'vt.tiktok.com' in url:
-            url = resolve_short_url(url)
-
-        resp = requests.get(url, headers=HEADERS, timeout=timeout)
-        html = resp.text
+        info = json.loads(result.stdout)
 
         data = {
-            'url': url,
-            'views': 0,
-            'likes': 0,
-            'shares': 0,
-            'comments': 0,
-            'saves': 0,
-            'followers': 0,
+            'url': info.get('webpage_url', url),
+            'views': info.get('view_count', 0) or 0,
+            'likes': info.get('like_count', 0) or 0,
+            'shares': info.get('repost_count', 0) or 0,
+            'comments': info.get('comment_count', 0) or 0,
+            'saves': info.get('collect_count', 0) or info.get('favorite_count', 0) or 0,
+            'followers': info.get('channel_follower_count', 0) or 0,
         }
-
-        # Try JSON-LD / SIGI_STATE / UNIVERSAL_DATA
-        json_patterns = [
-            r'"playCount"\s*:\s*(\d+)',
-            r'"diggCount"\s*:\s*(\d+)',
-            r'"shareCount"\s*:\s*(\d+)',
-            r'"commentCount"\s*:\s*(\d+)',
-            r'"collectCount"\s*:\s*(\d+)',
-            r'"followerCount"\s*:\s*(\d+)',
-        ]
-        keys = ['views', 'likes', 'shares', 'comments', 'saves', 'followers']
-
-        for pattern, key in zip(json_patterns, keys):
-            m = re.search(pattern, html)
-            if m:
-                data[key] = int(m.group(1))
 
         return data
 
+    except subprocess.TimeoutExpired:
+        print(f"    Timeout scraping {url}")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"    JSON parse error: {e}")
+        return None
     except Exception as e:
-        print(f"  Error scraping {url}: {e}")
+        print(f"    Error scraping {url}: {e}")
         return None
 
 
@@ -148,19 +121,21 @@ def main():
             json.dump(results, f, indent=2)
         return
 
-    print(f"Scraping {len(active_kols)} KOL(s)...")
+    print(f"Scraping {len(active_kols)} KOL(s) using yt-dlp...")
 
     for username, link in active_kols.items():
         print(f"  Scraping @{username}...")
         data = scrape_tiktok_video(link)
         if data:
             results[username] = data
-            print(f"    Views: {data['views']:,} | Likes: {data['likes']:,} | Shares: {data['shares']:,}")
+            print(f"    Views: {data['views']:,} | Likes: {data['likes']:,} | "
+                  f"Shares: {data['shares']:,} | Saves: {data['saves']:,} | "
+                  f"Comments: {data['comments']:,}")
         else:
             print(f"    Failed to scrape @{username}")
 
-        # Rate limiting
-        time.sleep(random.uniform(1, 3))
+        # Rate limiting — yt-dlp ไม่ต้อง delay มากเท่า requests
+        time.sleep(random.uniform(0.5, 1.5))
 
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
