@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JELE SODA 2026 KOL Influencer Marketing Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-red: #E63946;
+            --primary-orange: #F77F00;
+            --accent-green: #06A77D;
+            --accent-blue: #0077B6;
+            --accent-purple: #7209B7;
+            --accent-teal: #00B4D8;
+            --light-gray: #F8F9FA;
+            --border-gray: #E9ECEF;
+            --text-dark: #212529;
+            --text-light: #6C757D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #FFFFFF;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-orange) 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1em;
+            opacity: 0.95;
+        }
+
+        .header-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            font-size: 0.95em;
+        }
+
+        .meta-item {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 15px;
+            border-radius: 6px;
+            border-left: 3px solid rgba(255,255,255,0.8);
+        }
+
+        .meta-label {
+            opacity: 0.9;
+            font-size: 0.85em;
+        }
+
+        .meta-value {
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .kpi-label {
+            font-size: 0.85em;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-red);
+            margin-bottom: 5px;
+        }
+
+        .kpi-subtitle {
+            font-size: 0.75em;
+            color: var(--text-light);
+        }
+
+        .kpi-value.positive { color: var(--accent-green); }
+        .kpi-value.neutral { color: var(--text-dark); }
+
+        /* Filter Tabs */
+        .filter-section {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .filter-label {
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+            color: var(--text-dark);
+        }
+
+        .tab-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            background: var(--light-gray);
+            border: 1px solid var(--border-gray);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: var(--border-gray);
+        }
+
+        .tab.active {
+            background: var(--primary-red);
+            color: white;
+            border-color: var(--primary-red);
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .table-controls {
+            padding: 15px 20px;
+            background: var(--light-gray);
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .btn:hover {
+            background: var(--primary-orange);
+            transform: translateY(-1px);
+        }
+
+        .btn.secondary {
+            background: var(--accent-blue);
+        }
+
+        .btn.secondary:hover {
+            background: #0066A1;
+        }
+
+        .btn.success {
+            background: var(--accent-green);
+        }
+
+        .btn.success:hover {
+            background: #058560;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        th {
+            background: var(--light-gray);
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-gray);
+            cursor: pointer;
+            user-select: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th:hover {
+            background: var(--border-gray);
+        }
+
+        th.sortable::after {
+            content: ' \2191\2193';
+            opacity: 0.3;
+            font-size: 0.7em;
+        }
+
+        th.sorted-asc::after {
+            content: ' \2191';
+            opacity: 1;
+            color: var(--primary-red);
+        }
+
+        th.sorted-desc::after {
+            content: ' \2193';
+            opacity: 1;
+            color: var(--primary-red);
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        tr:hover {
+            background: var(--light-gray);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: white;
+        }
+
+        .badge-red { background: var(--primary-red); }
+        .badge-blue { background: var(--accent-blue); }
+        .badge-green { background: var(--accent-green); }
+        .badge-purple { background: var(--accent-purple); }
+        .badge-orange { background: var(--primary-orange); }
+        .badge-teal { background: var(--accent-teal); }
+
+        .status-check {
+            font-size: 1.2em;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .chart-title {
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 1em;
+            color: var(--text-dark);
+        }
+
+        /* Rankings Section */
+        .rankings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .ranking-card {
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .ranking-header {
+            background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-orange) 100%);
+            color: white;
+            padding: 15px;
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .ranking-list {
+            padding: 0;
+        }
+
+        .ranking-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-position {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: var(--primary-red);
+            min-width: 30px;
+        }
+
+        .ranking-name {
+            flex: 1;
+            margin: 0 10px;
+            font-size: 0.9em;
+        }
+
+        .ranking-value {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--text-dark);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.9em;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-footer .btn {
+            min-width: 100px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .header-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-group {
+                gap: 8px;
+            }
+
+            .tab {
+                padding: 6px 12px;
+                font-size: 0.85em;
+            }
+
+            table {
+                font-size: 0.8em;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+
+            .charts-grid,
+            .rankings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-number {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🔴 JELE SODA 2026</h1>
+            <p>KOL Influencer Marketing Campaign Dashboard</p>
+            <div class="header-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Platform</div>
+                    <div class="meta-value">TikTok</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Agency</div>
+                    <div class="meta-value">BBB</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Hashtags</div>
+                    <div class="meta-value">#เจเล่โซดา #JeleSoda</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">KOLs Total</div>
+                    <div class="meta-value">47</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- KPI Cards - Row 0: Campaign Overview -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">KPI Views Target</div>
+                <div class="kpi-value neutral" id="kpi-target">30,000,000</div>
+                <div class="kpi-subtitle">views</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Actual Performance</div>
+                <div class="kpi-value neutral" id="kpi-actual-views">0</div>
+                <div class="kpi-subtitle">total views</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">KPI Achieve %</div>
+                <div class="kpi-value neutral" id="kpi-achieve-pct">0%</div>
+                <div class="kpi-subtitle">views / target</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Media Budget</div>
+                <div class="kpi-value neutral" id="kpi-budget">600,000</div>
+                <div class="kpi-subtitle">THB</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Actual Use</div>
+                <div class="kpi-value neutral" id="kpi-actual-use">0</div>
+                <div class="kpi-subtitle">THB</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Budget Achieve %</div>
+                <div class="kpi-value neutral" id="kpi-budget-pct">0%</div>
+                <div class="kpi-subtitle">use / budget</div>
+            </div>
+        </div>
+
+        <!-- KPI Cards - Row 1: Engagement -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Creators</div>
+                <div class="kpi-value neutral" id="kpi-creators">0</div>
+                <div class="kpi-subtitle">KOLs</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Likes</div>
+                <div class="kpi-value positive" id="kpi-likes">0</div>
+                <div class="kpi-subtitle">engagement</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Shares</div>
+                <div class="kpi-value positive" id="kpi-shares">0</div>
+                <div class="kpi-subtitle">shares</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Comments</div>
+                <div class="kpi-value positive" id="kpi-comments">0</div>
+                <div class="kpi-subtitle">comments</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Saves</div>
+                <div class="kpi-value positive" id="kpi-saves">0</div>
+                <div class="kpi-subtitle">saves</div>
+            </div>
+        </div>
+
+        <!-- KPI Cards - Row 2: Performance -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-label">Total Followers</div>
+                <div class="kpi-value neutral" id="kpi-followers">0</div>
+                <div class="kpi-subtitle">followers</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Engagement</div>
+                <div class="kpi-value positive" id="kpi-total-engagement">0</div>
+                <div class="kpi-subtitle">total</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Avg Engagement/KOL</div>
+                <div class="kpi-value positive" id="kpi-avg-engagement">0</div>
+                <div class="kpi-subtitle">per creator</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">ER by Views</div>
+                <div class="kpi-value positive" id="kpi-er-views">0%</div>
+                <div class="kpi-subtitle">engagement rate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">ER by Followers</div>
+                <div class="kpi-value positive" id="kpi-er-followers">0%</div>
+                <div class="kpi-subtitle">engagement rate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Total Posts</div>
+                <div class="kpi-value neutral" id="kpi-posts">0</div>
+                <div class="kpi-subtitle">posts published</div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-label">Category Filter</div>
+            <div class="tab-group" id="category-tabs">
+                <button class="tab active" data-category="all">ทั้งหมด</button>
+                <button class="tab" data-category="central">🏙️ ภาคกลาง</button>
+                <button class="tab" data-category="north">🏔️ ภาคเหนือ</button>
+                <button class="tab" data-category="northeast">🌾 ภาคอีสาน</button>
+                <button class="tab" data-category="south">🌊 ภาคใต้</button>
+                <button class="tab" data-category="mixology">🍹 Mixology</button>
+            </div>
+
+            <div class="filter-label">Tier Filter</div>
+            <div class="tab-group" id="tier-tabs">
+                <button class="tab active" data-tier="all">👑 All Tiers</button>
+                <button class="tab" data-tier="Main">⭐ Main</button>
+                <button class="tab" data-tier="Micro">📱 Micro</button>
+                <button class="tab" data-tier="Mixology">🍸 Mixology</button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-controls">
+                <button class="btn secondary" onclick="openAddKOLModal()">➕ Add KOL</button>
+                <button class="btn secondary" onclick="exportCSV()">📥 Export CSV</button>
+                <button class="btn secondary" onclick="exportJSON()">📥 Export JSON</button>
+                <button class="btn secondary" onclick="importData()">📤 Import</button>
+                <button class="btn success" onclick="openActualUseModal()">💰 อัปเดตยอด Actual Use</button>
+            </div>
+            <table id="kol-table">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="displayName">Display Name</th>
+                        <th class="sortable" data-sort="username">Username</th>
+                        <th class="sortable" data-sort="tier">Tier</th>
+                        <th class="sortable" data-sort="category">Category</th>
+                        <th class="sortable" data-sort="followers">Followers</th>
+                        <th class="sortable" data-sort="views">Views</th>
+                        <th class="sortable" data-sort="likes">Likes</th>
+                        <th class="sortable" data-sort="shares">Shares</th>
+                        <th class="sortable" data-sort="comments">Comments</th>
+                        <th class="sortable" data-sort="saves">Saves</th>
+                        <th class="sortable" data-sort="posts">Posts</th>
+                        <th class="sortable" data-sort="er">ER %</th>
+                        <th class="sortable" data-sort="budget">Budget (฿)</th>
+                        <th class="sortable" data-sort="posted">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="kol-tbody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Category Distribution</div>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Tier Distribution</div>
+                <canvas id="tierChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Rankings -->
+        <div class="rankings-grid">
+            <div class="ranking-card">
+                <div class="ranking-header">🏆 Top Views</div>
+                <div class="ranking-list" id="ranking-views"></div>
+            </div>
+            <div class="ranking-card">
+                <div class="ranking-header">💫 Top Engagement</div>
+                <div class="ranking-list" id="ranking-engagement"></div>
+            </div>
+            <div class="ranking-card">
+                <div class="ranking-header">❤️ Top Likes</div>
+                <div class="ranking-list" id="ranking-likes"></div>
+            </div>
+            <div class="ranking-card">
+                <div class="ranking-header">💬 Top Comments</div>
+                <div class="ranking-list" id="ranking-comments"></div>
+            </div>
+            <div class="ranking-card">
+                <div class="ranking-header">🔄 Top Shares</div>
+                <div class="ranking-list" id="ranking-shares"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="addKOLModal">
+        <div class="modal-content">
+            <div class="modal-header">Add New KOL</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Display Name</label>
+                    <input type="text" id="addKOL-displayName" placeholder="e.g., บิวบอง">
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="addKOL-username" placeholder="e.g., biw_songkran">
+                </div>
+                <div class="form-group">
+                    <label>Tier</label>
+                    <select id="addKOL-tier">
+                        <option value="Main">Main</option>
+                        <option value="Micro">Micro</option>
+                        <option value="Mixology">Mixology</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="addKOL-category">
+                        <option value="ภาคกลาง">ภาคกลาง</option>
+                        <option value="ภาคเหนือ">ภาคเหนือ</option>
+                        <option value="ภาคอีสาน">ภาคอีสาน</option>
+                        <option value="ภาคใต้">ภาคใต้</option>
+                        <option value="Mixology">Mixology</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Followers</label>
+                    <input type="number" id="addKOL-followers" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Budget (THB)</label>
+                    <input type="number" id="addKOL-budget" placeholder="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal('addKOLModal')">Cancel</button>
+                <button class="btn" onclick="saveNewKOL()">Add KOL</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="actualUseModal">
+        <div class="modal-content">
+            <div class="modal-header">อัปเดตยอด Actual Use</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Actual Use (THB)</label>
+                    <input type="number" id="actualUseInput" class="input-number" placeholder="0">
+                </div>
+                <p style="color: var(--text-light); font-size: 0.9em;">ค่ากระหว่าง 0 - 600,000 THB</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" onclick="closeModal('actualUseModal')">Cancel</button>
+                <button class="btn success" onclick="saveActualUse()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".csv,.json" style="display:none;" onchange="handleImport(event)">
+
+    <script>
+        // ===========================
+        // CONSTANTS
+        // ===========================
+        const CAMPAIGN_KPI_VIEWS = 30000000;
+        const CAMPAIGN_MEDIA_BUDGET = 600000;
+        const CAMPAIGN_ACTUAL_USE_DEFAULT = 0;
+
+        // ===========================
+        // KOL DATA
+        // ===========================
+        const KOL_DATA = [
+            { username: 'biw_songkran', displayName: 'บิวบอง', tier: 'Main', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 1900000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 110000 },
+            { username: 'fasin22052545', displayName: 'พี่บังจับไมค์', tier: 'Main', platform: 'TikTok', category: 'ภาคใต้', gender: '-', followers: 297900, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 35000 },
+            { username: 'ovapachannel', displayName: 'OVAPA CHANNEL', tier: 'Main', platform: 'TikTok', category: 'ภาคเหนือ', gender: '-', followers: 397200, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 50000 },
+            { username: 'nophuwanet', displayName: 'เซียนหรั่ง', tier: 'Main', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 1700000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 110000 },
+            { username: 'tkpst2', displayName: 'บริษัทตั้งหวังเจ๊ง', tier: 'Main', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 5500000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 35000 },
+            { username: 'plugsweden', displayName: 'plugsweden', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 198800, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 16000 },
+            { username: 'pakkaput17', displayName: 'pakkaput17', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 369700, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 25000 },
+            { username: 'kuanpuantiew', displayName: 'กวนป่วนเที่ยว', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 1100000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 25000 },
+            { username: 'pexjakkajee', displayName: 'เป๊กจั๊กกะจี้', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 1400000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 45000 },
+            { username: 'puwanaipison', displayName: 'ไพซอล', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 335900, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 40000 },
+            { username: 'gotarm65', displayName: 'gotarm65', tier: 'Micro', platform: 'TikTok', category: 'ภาคเหนือ', gender: '-', followers: 563000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 40000 },
+            { username: 'tikbadai', displayName: 'อ้ายติ๊กบะดาย', tier: 'Micro', platform: 'TikTok', category: 'ภาคเหนือ', gender: '-', followers: 680800, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 28000 },
+            { username: 'patpaladmuang', displayName: 'patpaladmuang', tier: 'Micro', platform: 'TikTok', category: 'ภาคเหนือ', gender: '-', followers: 243700, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 26000 },
+            { username: 'saokrungthep', displayName: 'สาวกรุงเทพ', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 235200, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 35000 },
+            { username: 'll0499', displayName: 'MY K ME KEN', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 248000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 34000 },
+            { username: 'pooliepraew', displayName: 'pooliepraew', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 1200000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 45000 },
+            { username: 'f_u_i_', displayName: 'f_u_i_', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 212200, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 55000 },
+            { username: 'coochamp', displayName: 'แช้มกับทีวีคู่ใจ', tier: 'Micro', platform: 'TikTok', category: 'ภาคเหนือ', gender: '-', followers: 639100, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 35000 },
+            { username: 'aodbom2', displayName: 'ปุณณภพ เฟรนลี่', tier: 'Micro', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 1700000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 36000 },
+            { username: 'wootza5555', displayName: 'wootza5555', tier: 'Micro', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 985100, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 33000 },
+            { username: 'royver_th', displayName: 'royver_th', tier: 'Micro', platform: 'TikTok', category: 'ภาคใต้', gender: '-', followers: 793300, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 50000 },
+            { username: 'bookteerapat', displayName: 'บุ๊ค ธีร์', tier: 'Micro', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 694700, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 35000 },
+            { username: 'juno55555', displayName: 'บักจูโน่', tier: 'Micro', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 2600000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 29000 },
+            { username: 'bunyaporn_2009', displayName: 'พาย คอนเฟลก', tier: 'Micro', platform: 'TikTok', category: 'ภาคใต้', gender: '-', followers: 5900000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 29000 },
+            { username: 'thebellchanel', displayName: 'The Bell channel', tier: 'Micro', platform: 'TikTok', category: 'ภาคใต้', gender: '-', followers: 331400, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 50000 },
+            { username: 'tan_slaz19', displayName: 'อินฟลูน้ำตาลตก', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 143800, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 25000 },
+            { username: 'armgoodsunday', displayName: 'armgoodsunday', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 801800, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 35000 },
+            { username: 'biggesttha', displayName: 'ครูใหญ่', tier: 'Micro', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 220900, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 25000 },
+            { username: 'bosck999', displayName: 'บอสซีเค', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 1500000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 55000 },
+            { username: 'pupemaipriaw', displayName: 'ปูเป้ไม่เปรี้ยว', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 538700, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 40000 },
+            { username: 'jekkabot5555', displayName: 'jekkabot5555', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 1500000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 40000 },
+            { username: 'lenpaither', displayName: 'เล่นไปเถอะ', tier: 'Micro', platform: 'TikTok', category: 'ภาคกลาง', gender: '-', followers: 27400, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 35000 },
+            { username: 'apirak2539ice', displayName: 'อิหล่าขาเลาะ', tier: 'Micro', platform: 'TikTok', category: 'ภาคอีสาน', gender: '-', followers: 5400000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 32000 },
+            { username: 'kayshomebar', displayName: 'kayshomebar', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 39100, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 15000 },
+            { username: 'raa_reun_core', displayName: 'raa_reun_core', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 424000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 20000 },
+            { username: 'maxk_litt', displayName: 'maxk_litt', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 703600, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 10000 },
+            { username: 'maoaowfeel', displayName: 'มาววเอาฟีลล', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 12600, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 8000 },
+            { username: 'how.to.mao', displayName: 'how.to.mao', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 144700, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 9500 },
+            { username: 'arpo_story', displayName: 'arpo_story', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 149100, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 8000 },
+            { username: 'yod_121098', displayName: 'yod_121098', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 1200000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 9000 },
+            { username: 'tatatomang', displayName: 'tatatomang', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 186900, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 9000 },
+            { username: 'taloncamp_sg', displayName: 'ตะลอนแคมภ์', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 257100, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 9000 },
+            { username: 'gowithgoldd', displayName: 'ไปกับโกล์ด', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 254000, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 9000 },
+            { username: 'maww_shabu', displayName: 'มาวชาบู', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 415500, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 10000 },
+            { username: 'tenitbrk', displayName: 'โก้โกคนรักเมีย', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 4099999, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 10000 },
+            { username: 'biibuaaastory', displayName: 'biibuaaastory', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 58900, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 9000 },
+            { username: 'snicker_nts', displayName: 'snicker_nts', tier: 'Mixology', platform: 'TikTok', category: 'Mixology', gender: '-', followers: 114700, views: 0, likes: 0, shares: 0, comments: 0, saves: 0, posts: 1, kpi_views: 0, posted: true, link: '', budget: 10000 },
+        ];
+
+        // ===========================
+        // STATE
+        // ===========================
+        let kolData = [...KOL_DATA];
+        let currentCategoryFilter = 'all';
+        let currentTierFilter = 'all';
+        let currentSort = null;
+        let sortDirection = 'asc';
+
+        let CAMPAIGN_ACTUAL_USE = parseFloat(localStorage.getItem('jelesoda_actual_use')) || CAMPAIGN_ACTUAL_USE_DEFAULT;
+
+        // ===========================
+        // INITIALIZATION
+        // ===========================
+        document.addEventListener('DOMContentLoaded', function() {
+            renderKOLTable();
+            updateKPIs();
+            setupEventListeners();
+            initCharts();
+            updateRankings();
+        });
+
+        // ===========================
+        // EVENT LISTENERS
+        // ===========================
+        function setupEventListeners() {
+            // Category tabs
+            document.querySelectorAll('#category-tabs .tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('#category-tabs .tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentCategoryFilter = this.dataset.category;
+                    renderKOLTable();
+                    updateKPIs();
+                    updateCharts();
+                    updateRankings();
+                });
+            });
+
+            // Tier tabs
+            document.querySelectorAll('#tier-tabs .tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('#tier-tabs .tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTierFilter = this.dataset.tier;
+                    renderKOLTable();
+                    updateKPIs();
+                    updateCharts();
+                    updateRankings();
+                });
+            });
+
+            // Sorting
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const column = this.dataset.sort;
+                    if (currentSort === column) {
+                        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort = column;
+                        sortDirection = 'asc';
+                    }
+                    renderKOLTable();
+                });
+            });
+        }
+
+        // ===========================
+        // FILTERING & SORTING
+        // ===========================
+        function getFilteredData() {
+            let filtered = kolData.filter(kol => {
+                let categoryMatch = true;
+                let tierMatch = true;
+
+                if (currentCategoryFilter !== 'all') {
+                    if (currentCategoryFilter === 'central') categoryMatch = kol.category === 'ภาคกลาง';
+                    if (currentCategoryFilter === 'north') categoryMatch = kol.category === 'ภาคเหนือ';
+                    if (currentCategoryFilter === 'northeast') categoryMatch = kol.category === 'ภาคอีสาน';
+                    if (currentCategoryFilter === 'south') categoryMatch = kol.category === 'ภาคใต้';
+                    if (currentCategoryFilter === 'mixology') categoryMatch = kol.category === 'Mixology';
+                }
+
+                if (currentTierFilter !== 'all') {
+                    tierMatch = kol.tier === currentTierFilter;
+                }
+
+                return categoryMatch && tierMatch;
+            });
+
+            if (currentSort) {
+                filtered.sort((a, b) => {
+                    let aVal = a[currentSort];
+                    let bVal = b[currentSort];
+
+                    if (typeof aVal === 'string') {
+                        aVal = aVal.toLowerCase();
+                        bVal = bVal.toLowerCase();
+                    }
+
+                    if (sortDirection === 'asc') {
+                        return aVal > bVal ? 1 : -1;
+                    } else {
+                        return aVal < bVal ? 1 : -1;
+                    }
+                });
+            }
+
+            return filtered;
+        }
+
+        // ===========================
+        // KPI CALCULATIONS
+        // ===========================
+        function calculateKPIs(dataSet = null) {
+            const data = dataSet || getFilteredData();
+
+            const stats = {
+                totalViews: 0,
+                totalLikes: 0,
+                totalShares: 0,
+                totalComments: 0,
+                totalSaves: 0,
+                totalFollowers: 0,
+                totalEngagement: 0,
+                totalPosts: 0,
+                creators: data.length
+            };
+
+            data.forEach(kol => {
+                stats.totalViews += kol.views || 0;
+                stats.totalLikes += kol.likes || 0;
+                stats.totalShares += kol.shares || 0;
+                stats.totalComments += kol.comments || 0;
+                stats.totalSaves += kol.saves || 0;
+                stats.totalFollowers += kol.followers || 0;
+                stats.totalPosts += kol.posts || 0;
+            });
+
+            stats.totalEngagement = stats.totalLikes + stats.totalShares + stats.totalComments + stats.totalSaves;
+            stats.avgEngagement = stats.creators > 0 ? Math.round(stats.totalEngagement / stats.creators) : 0;
+            stats.erViews = stats.totalViews > 0 ? ((stats.totalEngagement / stats.totalViews) * 100).toFixed(2) : 0;
+            stats.erFollowers = stats.totalFollowers > 0 ? ((stats.totalEngagement / stats.totalFollowers) * 100).toFixed(2) : 0;
+            stats.achievePct = ((stats.totalViews / CAMPAIGN_KPI_VIEWS) * 100).toFixed(2);
+            stats.budgetPct = ((CAMPAIGN_ACTUAL_USE / CAMPAIGN_MEDIA_BUDGET) * 100).toFixed(2);
+
+            return stats;
+        }
+
+        function updateKPIs() {
+            const stats = calculateKPIs();
+
+            document.getElementById('kpi-target').textContent = formatNumber(CAMPAIGN_KPI_VIEWS);
+            document.getElementById('kpi-actual-views').textContent = formatNumber(stats.totalViews);
+            document.getElementById('kpi-achieve-pct').textContent = stats.achievePct + '%';
+            document.getElementById('kpi-budget').textContent = formatNumber(CAMPAIGN_MEDIA_BUDGET);
+            document.getElementById('kpi-actual-use').textContent = formatNumber(CAMPAIGN_ACTUAL_USE);
+            document.getElementById('kpi-budget-pct').textContent = stats.budgetPct + '%';
+
+            document.getElementById('kpi-creators').textContent = formatNumber(stats.creators);
+            document.getElementById('kpi-likes').textContent = formatNumber(stats.totalLikes);
+            document.getElementById('kpi-shares').textContent = formatNumber(stats.totalShares);
+            document.getElementById('kpi-comments').textContent = formatNumber(stats.totalComments);
+            document.getElementById('kpi-saves').textContent = formatNumber(stats.totalSaves);
+
+            document.getElementById('kpi-followers').textContent = formatNumber(stats.totalFollowers);
+            document.getElementById('kpi-total-engagement').textContent = formatNumber(stats.totalEngagement);
+            document.getElementById('kpi-avg-engagement').textContent = formatNumber(stats.avgEngagement);
+            document.getElementById('kpi-er-views').textContent = stats.erViews + '%';
+            document.getElementById('kpi-er-followers').textContent = stats.erFollowers + '%';
+            document.getElementById('kpi-posts').textContent = formatNumber(stats.totalPosts);
+        }
+
+        // ===========================
+        // TABLE RENDERING
+        // ===========================
+        function renderKOLTable() {
+            const filtered = getFilteredData();
+            const tbody = document.getElementById('kol-tbody');
+            tbody.innerHTML = '';
+
+            filtered.forEach(kol => {
+                const engagement = (kol.likes || 0) + (kol.shares || 0) + (kol.comments || 0) + (kol.saves || 0);
+                const er = kol.views > 0 ? ((engagement / kol.views) * 100).toFixed(2) : 0;
+
+                const tierBadgeClass = kol.tier === 'Main' ? 'badge-red' : kol.tier === 'Micro' ? 'badge-blue' : 'badge-green';
+                let categoryBadgeClass = 'badge-orange';
+                if (kol.category === 'ภาคเหนือ') categoryBadgeClass = 'badge-green';
+                if (kol.category === 'ภาคอีสาน') categoryBadgeClass = 'badge-purple';
+                if (kol.category === 'ภาคใต้') categoryBadgeClass = 'badge-blue';
+                if (kol.category === 'Mixology') categoryBadgeClass = 'badge-teal';
+
+                const status = kol.posted ? '<span class="status-check">✅</span>' : '<span class="status-check" style="opacity:0.3;">⭕</span>';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${kol.displayName}</td>
+                    <td>${kol.username}</td>
+                    <td><span class="badge ${tierBadgeClass}">${kol.tier}</span></td>
+                    <td><span class="badge ${categoryBadgeClass}">${kol.category}</span></td>
+                    <td>${formatNumber(kol.followers)}</td>
+                    <td>${formatNumber(kol.views)}</td>
+                    <td>${formatNumber(kol.likes)}</td>
+                    <td>${formatNumber(kol.shares)}</td>
+                    <td>${formatNumber(kol.comments)}</td>
+                    <td>${formatNumber(kol.saves)}</td>
+                    <td>${kol.posts}</td>
+                    <td>${er}%</td>
+                    <td>${formatNumber(kol.budget)}</td>
+                    <td>${status}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateSortHeaders();
+        }
+
+        function updateSortHeaders() {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sorted-asc', 'sorted-desc');
+                if (th.dataset.sort === currentSort) {
+                    th.classList.add(sortDirection === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                }
+            });
+        }
+
+        // ===========================
+        // CHARTS
+        // ===========================
+        let categoryChart, tierChart;
+
+        function initCharts() {
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            const tierCtx = document.getElementById('tierChart').getContext('2d');
+
+            categoryChart = new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ภาคกลาง', 'ภาคเหนือ', 'ภาคอีสาน', 'ภาคใต้', 'Mixology'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: ['#F77F00', '#06A77D', '#7209B7', '#0077B6', '#00B4D8'],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { family: "'Sarabun', sans-serif", size: 12 }, padding: 15 }
+                        }
+                    }
+                }
+            });
+
+            tierChart = new Chart(tierCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Main', 'Micro', 'Mixology'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#E63946', '#0077B6', '#06A77D'],
+                        borderColor: '#FFFFFF',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { family: "'Sarabun', sans-serif", size: 12 }, padding: 15 }
+                        }
+                    }
+                }
+            });
+
+            updateCharts();
+        }
+
+        function updateCharts() {
+            const data = getFilteredData();
+
+            // Category counts
+            const categoryCounts = {
+                'ภาคกลาง': data.filter(k => k.category === 'ภาคกลาง').length,
+                'ภาคเหนือ': data.filter(k => k.category === 'ภาคเหนือ').length,
+                'ภาคอีสาน': data.filter(k => k.category === 'ภาคอีสาน').length,
+                'ภาคใต้': data.filter(k => k.category === 'ภาคใต้').length,
+                'Mixology': data.filter(k => k.category === 'Mixology').length
+            };
+
+            categoryChart.data.datasets[0].data = [
+                categoryCounts['ภาคกลาง'],
+                categoryCounts['ภาคเหนือ'],
+                categoryCounts['ภาคอีสาน'],
+                categoryCounts['ภาคใต้'],
+                categoryCounts['Mixology']
+            ];
+            categoryChart.update();
+
+            // Tier counts
+            const tierCounts = {
+                'Main': data.filter(k => k.tier === 'Main').length,
+                'Micro': data.filter(k => k.tier === 'Micro').length,
+                'Mixology': data.filter(k => k.tier === 'Mixology').length
+            };
+
+            tierChart.data.datasets[0].data = [
+                tierCounts['Main'],
+                tierCounts['Micro'],
+                tierCounts['Mixology']
+            ];
+            tierChart.update();
+        }
+
+        // ===========================
+        // RANKINGS
+        // ===========================
+        function updateRankings() {
+            const data = getFilteredData();
+
+            // Top Views
+            const topViews = [...data].sort((a, b) => b.views - a.views).slice(0, 5);
+            renderRanking('ranking-views', topViews, 'views');
+
+            // Top Engagement
+            const withEngagement = data.map(k => ({
+                ...k,
+                engagement: (k.likes || 0) + (k.shares || 0) + (k.comments || 0) + (k.saves || 0)
+            }));
+            const topEngagement = [...withEngagement].sort((a, b) => b.engagement - a.engagement).slice(0, 5);
+            renderRanking('ranking-engagement', topEngagement, 'engagement');
+
+            // Top Likes
+            const topLikes = [...data].sort((a, b) => b.likes - a.likes).slice(0, 5);
+            renderRanking('ranking-likes', topLikes, 'likes');
+
+            // Top Comments
+            const topComments = [...data].sort((a, b) => b.comments - a.comments).slice(0, 5);
+            renderRanking('ranking-comments', topComments, 'comments');
+
+            // Top Shares
+            const topShares = [...data].sort((a, b) => b.shares - a.shares).slice(0, 5);
+            renderRanking('ranking-shares', topShares, 'shares');
+        }
+
+        function renderRanking(elementId, items, metric) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+
+            items.forEach((item, idx) => {
+                const value = metric === 'engagement' ? item.engagement : item[metric];
+                const div = document.createElement('div');
+                div.className = 'ranking-item';
+                div.innerHTML = `
+                    <span class="ranking-position">#${idx + 1}</span>
+                    <span class="ranking-name">${item.displayName}</span>
+                    <span class="ranking-value">${formatNumber(value)}</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // ===========================
+        // UTILITIES
+        // ===========================
+        function formatNumber(num) {
+            if (num === null || num === undefined) return '0';
+            return Math.floor(num).toLocaleString('th-TH');
+        }
+
+        // ===========================
+        // MODAL FUNCTIONS
+        // ===========================
+        function openAddKOLModal() {
+            document.getElementById('addKOLModal').classList.add('active');
+        }
+
+        function openActualUseModal() {
+            document.getElementById('actualUseInput').value = CAMPAIGN_ACTUAL_USE;
+            document.getElementById('actualUseModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function saveNewKOL() {
+            const newKOL = {
+                username: document.getElementById('addKOL-username').value,
+                displayName: document.getElementById('addKOL-displayName').value,
+                tier: document.getElementById('addKOL-tier').value,
+                platform: 'TikTok',
+                category: document.getElementById('addKOL-category').value,
+                gender: '-',
+                followers: parseInt(document.getElementById('addKOL-followers').value) || 0,
+                views: 0,
+                likes: 0,
+                shares: 0,
+                comments: 0,
+                saves: 0,
+                posts: 1,
+                kpi_views: 0,
+                posted: false,
+                link: '',
+                budget: parseInt(document.getElementById('addKOL-budget').value) || 0
+            };
+
+            kolData.push(newKOL);
+            renderKOLTable();
+            updateKPIs();
+            updateCharts();
+            updateRankings();
+            closeModal('addKOLModal');
+
+            // Clear form
+            document.getElementById('addKOL-displayName').value = '';
+            document.getElementById('addKOL-username').value = '';
+            document.getElementById('addKOL-followers').value = '';
+            document.getElementById('addKOL-budget').value = '';
+        }
+
+        function saveActualUse() {
+            const value = parseFloat(document.getElementById('actualUseInput').value) || 0;
+            CAMPAIGN_ACTUAL_USE = value;
+            localStorage.setItem('jelesoda_actual_use', value);
+            updateKPIs();
+            closeModal('actualUseModal');
+        }
+
+        // ===========================
+        // IMPORT / EXPORT
+        // ===========================
+        function exportCSV() {
+            const headers = ['Display Name', 'Username', 'Tier', 'Category', 'Followers', 'Views', 'Likes', 'Shares', 'Comments', 'Saves', 'Posts', 'Budget'];
+            const rows = kolData.map(k => [
+                k.displayName, k.username, k.tier, k.category, k.followers, k.views, k.likes, k.shares, k.comments, k.saves, k.posts, k.budget
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            downloadFile(csv, 'jele-soda-kols.csv', 'text/csv');
+        }
+
+        function exportJSON() {
+            const data = {
+                campaign: 'JELE SODA 2026',
+                exportDate: new Date().toISOString(),
+                kols: kolData,
+                actualUse: CAMPAIGN_ACTUAL_USE
+            };
+            downloadFile(JSON.stringify(data, null, 2), 'jele-soda-kols.json', 'application/json');
+        }
+
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type: type });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        function importData() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.kols && Array.isArray(data.kols)) {
+                        kolData = data.kols;
+                        if (data.actualUse) {
+                            CAMPAIGN_ACTUAL_USE = data.actualUse;
+                            localStorage.setItem('jelesoda_actual_use', CAMPAIGN_ACTUAL_USE);
+                        }
+                        renderKOLTable();
+                        updateKPIs();
+                        updateCharts();
+                        updateRankings();
+                        alert('Data imported successfully!');
+                    }
+                } catch (err) {
+                    alert('Error importing file. Please make sure it is a valid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Close modals on outside click
+        document.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

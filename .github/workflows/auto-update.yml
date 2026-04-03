@@ -1,0 +1,48 @@
+name: Auto Update Dashboard
+
+on:
+  schedule:
+    # ทุกวัน 09:00 AM เวลาไทย (02:00 UTC)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      actual_use:
+        description: 'Actual Use amount (THB) — ใส่ตัวเลขถ้าต้องการอัปเดต'
+        required: false
+        default: ''
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run TikTok Scraper
+        run: python3 scripts/tiktok_scraper.py scrape_results.json
+
+      - name: Update Dashboard
+        run: python3 scripts/update_dashboard.py scrape_results.json index.html
+
+      - name: Update Actual Use (if provided)
+        if: ${{ github.event.inputs.actual_use != '' }}
+        run: python3 scripts/update_actual_use.py ${{ github.event.inputs.actual_use }} index.html
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --staged --quiet || git commit -m "Auto-update dashboard $(date +'%Y-%m-%d %H:%M')"
+          git push
