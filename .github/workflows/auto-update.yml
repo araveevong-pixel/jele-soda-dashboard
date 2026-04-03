@@ -2,8 +2,8 @@ name: Auto Update Dashboard
 
 on:
   schedule:
-    # ทุกวัน 09:00 AM เวลาไทย (02:00 UTC)
-    - cron: '0 2 * * *'
+    # ทุก 30 นาที
+    - cron: '*/30 * * * *'
   workflow_dispatch:
     inputs:
       actual_use:
