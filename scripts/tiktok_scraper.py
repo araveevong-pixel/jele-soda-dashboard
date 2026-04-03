@@ -13,6 +13,15 @@ import time
 import random
 
 # ============================================================
+#  MANUAL OVERRIDE — สำหรับ KOL ที่ดึงยอดอัตโนมัติไม่ได้
+#  (เช่น วิดีโอถูกจำกัดอายุ / ต้อง login)
+#  ใส่ยอดล่าสุดที่ดูด้วยตาจาก TikTok แล้วอัปเดตเป็นระยะ
+# ============================================================
+MANUAL_OVERRIDE = {
+    # 'snicker_nts': {'views': 0, 'likes': 0, 'shares': 0, 'comments': 0, 'saves': 0, 'followers': 114700},
+}
+
+# ============================================================
 #  KOL LINKS — เพิ่มลิงก์ใหม่เมื่อ KOL โพสต์
 # ============================================================
 KOL_LINKS = {
@@ -81,8 +90,18 @@ def scrape_tiktok_video(url, timeout=60):
         )
 
         if result.returncode != 0:
-            print(f"    yt-dlp error: {result.stderr.strip()[:200]}")
-            return None
+            # Retry with --age-limit for age-restricted / sensitive content
+            if 'comfortable' in result.stderr or 'Log in' in result.stderr:
+                print(f"    Age-restricted content, retrying with --age-limit 99...")
+                result = subprocess.run(
+                    ['yt-dlp', '--dump-json', '--no-download', '--no-warnings',
+                     '--age-limit', '99', url],
+                    capture_output=True, text=True, timeout=timeout
+                )
+
+            if result.returncode != 0:
+                print(f"    yt-dlp error: {result.stderr.strip()[:200]}")
+                return None
 
         info = json.loads(result.stdout)
 
@@ -134,6 +153,15 @@ def main():
     print(f"Scraping {len(active_kols)} KOL(s) using yt-dlp...")
 
     for username, link in active_kols.items():
+        # Check manual override first
+        if username in MANUAL_OVERRIDE:
+            results[username] = MANUAL_OVERRIDE[username]
+            results[username]['url'] = link
+            print(f"  @{username} — using manual override data")
+            print(f"    Views: {results[username].get('views',0):,} | "
+                  f"Likes: {results[username].get('likes',0):,}")
+            continue
+
         print(f"  Scraping @{username}...")
         data = scrape_tiktok_video(link)
         if data:

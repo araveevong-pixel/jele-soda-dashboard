@@ -136,10 +136,29 @@ def preserve_actual_use(html_content):
     return float(m.group(1)) if m else 0
 
 
-def build_kol_entry(username, scrape_data, link=''):
-    """Build a single KOL JavaScript object string."""
+def parse_existing_kol_data(html_content):
+    """Parse existing KOL_DATA from HTML to preserve stats for failed scrapes."""
+    existing = {}
+    pattern = r"\{\s*username:\s*'([^']+)'.*?views:\s*(\d+).*?likes:\s*(\d+).*?shares:\s*(\d+).*?comments:\s*(\d+).*?saves:\s*(\d+).*?followers:\s*(\d+)"
+    for m in re.finditer(pattern, html_content):
+        username = m.group(1)
+        existing[username] = {
+            'views': int(m.group(2)),
+            'likes': int(m.group(3)),
+            'shares': int(m.group(4)),
+            'comments': int(m.group(5)),
+            'saves': int(m.group(6)),
+            'followers': int(m.group(7)),
+        }
+    return existing
+
+
+def build_kol_entry(username, scrape_data, link='', existing_data=None):
+    """Build a single KOL JavaScript object string.
+    Falls back to existing_data (from HTML) when scrape fails."""
     meta = KOL_METADATA.get(username, {})
     sd = scrape_data.get(username, {})
+    ex = (existing_data or {}).get(username, {})
 
     display_name = meta.get('displayName', username)
     tier = meta.get('tier', 'Micro')
@@ -148,11 +167,12 @@ def build_kol_entry(username, scrape_data, link=''):
     followers = sd.get('followers', 0) or meta.get('followers', 0)
     budget = meta.get('budget', 0)
 
-    views = sd.get('views', 0)
-    likes = sd.get('likes', 0)
-    shares = sd.get('shares', 0)
-    comments = sd.get('comments', 0)
-    saves = sd.get('saves', 0)
+    # Use scraped data; if missing, fall back to existing HTML data
+    views = sd.get('views', 0) or ex.get('views', 0)
+    likes = sd.get('likes', 0) or ex.get('likes', 0)
+    shares = sd.get('shares', 0) or ex.get('shares', 0)
+    comments = sd.get('comments', 0) or ex.get('comments', 0)
+    saves = sd.get('saves', 0) or ex.get('saves', 0)
 
     posted = username not in NOT_POSTED_KOLS
     posts = 1 if posted else 0
@@ -192,11 +212,14 @@ def main():
     # Preserve actual use
     actual_use = preserve_actual_use(html)
 
+    # Parse existing KOL stats from HTML (fallback for failed scrapes)
+    existing_data = parse_existing_kol_data(html)
+
     # Build new KOL_DATA array
     entries = []
     for username in KOL_METADATA.keys():
         link = KOL_LINKS.get(username, '')
-        entry = build_kol_entry(username, scrape_data, link)
+        entry = build_kol_entry(username, scrape_data, link, existing_data)
         entries.append(entry)
 
     new_kol_data = "const KOL_DATA = [\n" + ",\n".join(entries) + "\n];"
