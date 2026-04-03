@@ -86,13 +86,23 @@ def scrape_tiktok_video(url, timeout=60):
 
         info = json.loads(result.stdout)
 
+        # Debug: dump all keys containing 'count', 'save', 'collect', 'favorite', 'bookmark'
+        debug_keys = {k: v for k, v in info.items()
+                      if any(word in k.lower() for word in ['count', 'save', 'collect', 'favorite', 'bookmark'])}
+        if debug_keys:
+            print(f"    [DEBUG] Available count fields: {debug_keys}")
+
         data = {
             'url': info.get('webpage_url', url),
             'views': info.get('view_count', 0) or 0,
             'likes': info.get('like_count', 0) or 0,
             'shares': info.get('repost_count', 0) or 0,
             'comments': info.get('comment_count', 0) or 0,
-            'saves': info.get('collect_count', 0) or info.get('favorite_count', 0) or 0,
+            'saves': (info.get('collect_count', 0)
+                      or info.get('favorite_count', 0)
+                      or info.get('bookmark_count', 0)
+                      or info.get('save_count', 0)
+                      or 0),
             'followers': info.get('channel_follower_count', 0) or 0,
         }
 
