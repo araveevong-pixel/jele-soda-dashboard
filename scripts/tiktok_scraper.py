@@ -98,10 +98,10 @@ def scrape_tiktok_video(url, timeout=60):
             'likes': info.get('like_count', 0) or 0,
             'shares': info.get('repost_count', 0) or 0,
             'comments': info.get('comment_count', 0) or 0,
-            'saves': (info.get('collect_count', 0)
-                      or info.get('favorite_count', 0)
-                      or info.get('bookmark_count', 0)
-                      or info.get('save_count', 0)
+            'saves': (info.get('save_count')
+                      or info.get('collect_count')
+                      or info.get('favorite_count')
+                      or info.get('bookmark_count')
                       or 0),
             'followers': info.get('channel_follower_count', 0) or 0,
         }
