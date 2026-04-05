@@ -139,16 +139,17 @@ def preserve_actual_use(html_content):
 def parse_existing_kol_data(html_content):
     """Parse existing KOL_DATA from HTML to preserve stats for failed scrapes."""
     existing = {}
-    pattern = r"\{\s*username:\s*'([^']+)'.*?views:\s*(\d+).*?likes:\s*(\d+).*?shares:\s*(\d+).*?comments:\s*(\d+).*?saves:\s*(\d+).*?followers:\s*(\d+)"
+    # Format: username ... followers ... views ... likes ... shares ... comments ... saves
+    pattern = r"\{\s*username:\s*'([^']+)'.*?followers:\s*(\d+).*?views:\s*(\d+).*?likes:\s*(\d+).*?shares:\s*(\d+).*?comments:\s*(\d+).*?saves:\s*(\d+)"
     for m in re.finditer(pattern, html_content):
         username = m.group(1)
         existing[username] = {
-            'views': int(m.group(2)),
-            'likes': int(m.group(3)),
-            'shares': int(m.group(4)),
-            'comments': int(m.group(5)),
-            'saves': int(m.group(6)),
-            'followers': int(m.group(7)),
+            'followers': int(m.group(2)),
+            'views': int(m.group(3)),
+            'likes': int(m.group(4)),
+            'shares': int(m.group(5)),
+            'comments': int(m.group(6)),
+            'saves': int(m.group(7)),
         }
     return existing
 
@@ -167,12 +168,20 @@ def build_kol_entry(username, scrape_data, link='', existing_data=None):
     followers = sd.get('followers', 0) or meta.get('followers', 0)
     budget = meta.get('budget', 0)
 
-    # Use scraped data; if missing, fall back to existing HTML data
-    views = sd.get('views', 0) or ex.get('views', 0)
-    likes = sd.get('likes', 0) or ex.get('likes', 0)
-    shares = sd.get('shares', 0) or ex.get('shares', 0)
-    comments = sd.get('comments', 0) or ex.get('comments', 0)
-    saves = sd.get('saves', 0) or ex.get('saves', 0)
+    # If KOL not in scrape results at all → use existing HTML data as fallback
+    # If KOL is in scrape results → always use scraped values (even if 0)
+    if username in scrape_data:
+        views = sd.get('views', 0)
+        likes = sd.get('likes', 0)
+        shares = sd.get('shares', 0)
+        comments = sd.get('comments', 0)
+        saves = sd.get('saves', 0)
+    else:
+        views = ex.get('views', 0)
+        likes = ex.get('likes', 0)
+        shares = ex.get('shares', 0)
+        comments = ex.get('comments', 0)
+        saves = ex.get('saves', 0)
 
     posted = username not in NOT_POSTED_KOLS
     posts = 1 if posted else 0
