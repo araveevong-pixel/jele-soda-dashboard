@@ -50,7 +50,7 @@ KOL_LINKS = {
     # Micro - ภาคเหนือ (4)
     'gotarm65': 'https://vt.tiktok.com/ZSm7MXU59/',
     'tikbadai': 'https://vt.tiktok.com/ZSmcW2HWK/',
-    'patpaladmuang': 'https://vt.tiktok.com/ZSmcaqqea/',
+    'patpaladmuang': 'https://www.tiktok.com/@patpaladmuang/video/7611900258393541909',
     'coochamp': 'https://vt.tiktok.com/ZSuY8vRRb/',
     # Micro - ภาคอีสาน (6)
     'aodbom2': 'https://vt.tiktok.com/ZSuYMrAnR/',

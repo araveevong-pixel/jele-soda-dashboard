@@ -94,7 +94,7 @@ KOL_LINKS = {
     'bosck999': 'https://vt.tiktok.com/ZSumpv8TU/',
     'gotarm65': 'https://vt.tiktok.com/ZSm7MXU59/',
     'tikbadai': 'https://vt.tiktok.com/ZSmcW2HWK/',
-    'patpaladmuang': 'https://vt.tiktok.com/ZSmcaqqea/',
+    'patpaladmuang': 'https://www.tiktok.com/@patpaladmuang/video/7611900258393541909',
     'coochamp': 'https://vt.tiktok.com/ZSuY8vRRb/',
     'aodbom2': 'https://vt.tiktok.com/ZSuYMrAnR/',
     'wootza5555': 'https://vt.tiktok.com/ZSuYhbTuQ/',
