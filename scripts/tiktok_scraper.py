@@ -18,7 +18,7 @@ import random
 #  ใส่ยอดล่าสุดที่ดูด้วยตาจาก TikTok แล้วอัปเดตเป็นระยะ
 # ============================================================
 MANUAL_OVERRIDE = {
-    'snicker_nts': {'views': 119300, 'likes': 0, 'shares': 0, 'comments': 0, 'saves': 0, 'followers': 114700},
+    'snicker_nts': {'views': 119300, 'likes': 818, 'shares': 9, 'comments': 4, 'saves': 31, 'followers': 114700},
 }
 
 # ============================================================
